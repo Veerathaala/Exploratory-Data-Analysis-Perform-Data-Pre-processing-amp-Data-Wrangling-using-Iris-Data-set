@@ -1,0 +1,48 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+
+df['species'] = iris.target
+df['species'] = df['species'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
+
+print("First 5 rows of the dataset:")
+print(df.head())
+
+print("\nMissing Values in Each Column:")
+print(df.isnull().sum())
+
+print("\nNumber of Duplicate Rows:", df.duplicated().sum())
+
+df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']
+
+df['sepal_area'] = df['sepal_length'] * df['sepal_width']
+df['petal_area'] = df['petal_length'] * df['petal_width']
+
+print("\nStatistical Summary of Numerical Features:")
+print(df.describe())
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df.iloc[:, :-1])  
+plt.title("Boxplot of Features")
+plt.show()
+
+sns.pairplot(df, hue='species', markers=["o", "s", "D"])
+plt.show()
+
+plt.figure(figsize=(8, 6))
+# Calculate correlation only for numerical features
+numerical_df = df.select_dtypes(include=np.number) 
+sns.heatmap(numerical_df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Feature Correlation Matrix")
+plt.show()
+sns.countplot(x='species', data=df, palette="Set2")
+plt.title("Species Distribution")
+plt.show()
+
+df.to_csv('cleaned_iris.csv', index=False)
+print("\nCleaned dataset saved as 'cleaned_iris.csv'")
